@@ -16,7 +16,6 @@ comprenant un descriptif et un prix.
 @version 4 novembre 2021
 """
 
-counter = 0
 
 class Article:
 
@@ -80,7 +79,7 @@ Cette classe représente une Facture, sous forme d'une liste d'articles.
 
 class Facture:
 
-    def __init__(self, d, a_list):
+    def __init__(self, d, a_list, facture_num):
         """
         @pre  d est un string court décrivant la facture;
               a_list est une liste d'objets de type Article.
@@ -89,6 +88,7 @@ class Facture:
         """
         self.__description = d
         self.__articles = a_list
+        self.facture_num = facture_num
 
     def description(self):
         """
@@ -107,7 +107,7 @@ class Facture:
         s = self.entete_str()
         totalPrix = 0.0
         totalTVA = 0.0
-        for art in self.__articles:
+        for art in self.articles():
             s += self.article_str(art)
             totalPrix = totalPrix + art.prix()
             totalTVA = totalTVA + art.tva()
@@ -116,13 +116,11 @@ class Facture:
         return s
 
     def entete_str(self):
-        global counter
         """
         @post: retourne une représentation string de l'entête de la facture, comprenant le descriptif
                et les entêtes des colonnes.
         """
-        counter += 1
-        return "Facture No " + str(counter) + " : " + self.__description + "\n" \
+        return "Facture No " + str(self.facture_num) + " : " + self.__description + "\n" \
                + self.barre_str() \
                + "| {0:<40} | {1:>10} | {2:>10} | {3:>10} |\n".format("Description", "prix HTVA", "TVA", "prix TVAC") \
                + self.barre_str()
@@ -134,13 +132,6 @@ class Facture:
         barre_longeur = 83
         return "=" * barre_longeur + "\n"
 
-    def article_str(self, art):
-        """
-        @pre:  art une instance de la classe Article
-        @post: retourne un string correspondant à une ligne de facture pour l'article art
-        """
-        return "| {0:40} | {1:10.2f} | {2:10.2f} | {3:10.2f} |\n".format(art.description(), art.prix(), art.tva(),
-                                                                         art.prix_tvac())
 
     def totaux_str(self, prix, tva):
         """
@@ -152,6 +143,18 @@ class Facture:
         return self.barre_str() \
                + "| {0:40} | {1:10.2f} | {2:10.2f} | {3:10.2f} |\n".format("T O T A L", prix, tva, prix + tva) \
                + self.barre_str()
+
+    def totaux_str_pkpp(self, nombre, poids):
+        """
+        @pre:  prix un float représentant le prix total de la facture en EURO
+               tva un float représentant le TVA total de la facture en EURO
+        @post: retourne un string représentant une ligne de facture avec les totaux prix et tva,
+               à imprimer en bas de la facture
+        """
+        return self.barre_str() \
+               + "| {0:1} articles                               |              |{2:11.2f} |{3:8.2f}kg|\n".format((len(self.articles())), nombre, nombre, poids) \
+               + self.barre_str()
+
 
     # Cette méthode doit être ajouté lors de l'étape 2.5 de la mission    
     def nombre(self, pce):
@@ -169,6 +172,12 @@ class Facture:
                 continue
         return same_piece
 
+    def get_num_for_article(self, article_obj_class):
+        count = 0
+        for word in self.articles():
+            if word == article_obj_class:
+                count += 1
+        return count
 
 
     # Cette méthode doit être ajouté lors de l'étape 2.6 de la mission    
@@ -176,7 +185,48 @@ class Facture:
         """
         Cette méthode est une méthode auxiliaire pour la méthode printLivraison
         """
-        pass
+        return "Livraison - Facture No " + str(self.facture_num) + " : " + self.__description + "\n" \
+                + self.barre_str() \
+                + "| {0:<40} | {1:>10}   | {2:>10} | {3:>9}|\n".format("Description", " poids/pce", "nombre",
+                                                                          "poids") \
+                + self.barre_str()
+
+    def article_str(self, art):
+        """
+        @pre:  art une instance de la classe Article
+        @post: retourne un string correspondant à une ligne de facture pour l'article art
+        """
+        return "| {0:40} | {1:10.2f} | {2:10.2f} | {3:10.2f} |\n".format(art.description(), art.prix(), art.tva(),
+                                                                         art.prix_tvac())
+
+    def article_str_pkpp(self, art):
+        """
+        @pre:  art une instance de la classe Article
+        @post: retourne un string correspondant à une ligne de facture pour l'article art
+        """
+        print(art.piece_obj.poids())
+        return "| {0:40} | {1:10.2f}kg | {2:10.2f} |{3:8.2f}kg|\n".format(art.piece_obj.description(), art.piece_obj.poids(), art.nombre(),
+                                                                         art.poids_total())
+
+    def print_livraison(self):
+        s = self.livraison_str()
+        poids = 0
+        total_nombre = 0
+        article_fragile = 0
+        for art in self.articles():
+            if art.piece_obj.fragile() == True:
+                article_fragile += 1
+            s += self.article_str_pkpp(art)
+            poids += art.poids_total()
+            total_nombre += art.nombre()
+
+        total_nombre = int(total_nombre)
+        if article_fragile >= 1:
+            s += self.totaux_str_pkpp(total_nombre, poids)
+            s += " (!) *** livraison fragile ***"
+            return s
+        s += self.totaux_str_pkpp(total_nombre, poids)
+        return s
 
 
 #########################
@@ -194,7 +244,6 @@ class ArticleReparation(Article):
     def prix(self):
         return 20 + (35*self.duration)
 
-
 class Piece:
     def __init__(self, string: str, montant: float, kg: float, fragilité=False, taux_tva_reduite=False):
         self.__string = string
@@ -202,6 +251,9 @@ class Piece:
         self.__kg = kg
         self.__fragilité = fragilité
         self.__taux_tva_reduite = taux_tva_reduite
+
+        if self.__fragilité == True:
+            self.__string += "(!)"
 
     def description(self):
         return self.__string
@@ -222,11 +274,21 @@ class Piece:
         return self.description() == other.description() and self.prix() == other.prix()
 
 
+ma_piece = Piece("article", 38.8, 10.2, taux_tva_reduite=True)
+
+
 class ArticlePiece(Article):
-    def __init__(self, d, p, piece_number, piece_obj):
+    def __init__(self, d: str, p: float, piece_number: int, piece_obj):
         super().__init__(d, p)
         self.__number = piece_number
         self.piece_obj = piece_obj
+
+    def super_description(self):
+        return super().description()
+
+    '''def super_edit_description(self, txt):
+        self.super_description() += txt
+        return self.super_description() + txt'''
 
     def tva_ou_pas(self):
         return self.piece_obj.tva_reduite()
@@ -249,13 +311,19 @@ class ArticlePiece(Article):
         else:
             return 0.21
 
+    def poids_total(self):
+        return self.nombre() * self.piece_obj.poids()
 
-a = Facture("Gaming", [Article("Carte Graphique RTX 3090", 1099.99)])
-b = Facture("Gaming", [Article("Carte Graphique RTX 3090", 1099.99), Article("Carte Graphique RTX 3090", 1099.99)])
-g = Piece("Carte Graphique RTX 3090", 1099.99, 3, True, False)
+
+b = Facture("Gaming", [Article("Carte Graphique RTX 3090", 1099.99), Article("Carte Graphique RTX 3090", 1099.99)], 2)
+g = Piece("souris bluetooth", 15.99, 3, False, False)
+h = Piece("Carte Graphique RTX 3090", 1599.99, 2, True, False)
+hh = Piece("disque dur 350 GB", 5,  0.355, True, True)
+hhh = ArticlePiece("disque dur 350 GB", 5, 1, hh)
 g2 = ArticlePiece("souris bluetooth", 15.99, 3, g)
-print(a)
-print(b)
+g3 = ArticlePiece("Carte Graphique RTX 3090", 15.99, 1, h)
+a = Facture("PC store 22 octobre", [g2, g3, hhh], 1)
+print(a.print_livraison())
 
 
 
