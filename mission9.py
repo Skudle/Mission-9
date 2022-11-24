@@ -205,7 +205,7 @@ class Facture:
         @post: retourne un string correspondant à une ligne de facture pour l'article art
         """
         print(art.piece_obj.poids())
-        return "| {0:40} | {1:10.2f}kg | {2:10.2f} |{3:8.2f}kg|\n".format(art.piece_obj.description(), art.piece_obj.poids(), art.nombre(),
+        return "| {0:40} | {1:10.2f}kg | {2:10.0f} |{3:8.3f}kg|\n".format(art.piece_obj.description(), art.piece_obj.poids(), art.nombre(),
                                                                          art.poids_total())
 
     def print_livraison(self):
@@ -286,9 +286,9 @@ class ArticlePiece(Article):
     def super_description(self):
         return super().description()
 
-    '''def super_edit_description(self, txt):
-        self.super_description() += txt
-        return self.super_description() + txt'''
+    def super_edit_description(self, txt):
+        self.__description += txt
+
 
     def tva_ou_pas(self):
         return self.piece_obj.tva_reduite()
@@ -323,7 +323,8 @@ hhh = ArticlePiece("disque dur 350 GB", 5, 1, hh)
 g2 = ArticlePiece("souris bluetooth", 15.99, 3, g)
 g3 = ArticlePiece("Carte Graphique RTX 3090", 15.99, 1, h)
 a = Facture("PC store 22 octobre", [g2, g3, hhh], 1)
-print(a.print_livraison())
+#print(a.print_livraison())
+print(g2.super_edit_description('ttt'))
 
 
 
