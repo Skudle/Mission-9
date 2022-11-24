@@ -67,7 +67,7 @@ class Article:
 
     def super_edit_description(self, txt):
         self.__description += txt
-        return self.description()
+
 ###############
 ### FACTURE ###
 ###############
@@ -154,7 +154,7 @@ class Facture:
                à imprimer en bas de la facture
         """
         return self.barre_str() \
-               + "| {0:1} articles                               |              |{2:11.2f} |{3:8.2f}kg|\n".format((len(self.articles())), nombre, nombre, poids) \
+               + "| {0:1} articles                               |              |{2:11.0f} |{3:8.3f}kg|\n".format((len(self.articles())), nombre, nombre, poids) \
                + self.barre_str()
 
 
@@ -207,7 +207,7 @@ class Facture:
         @post: retourne un string correspondant à une ligne de facture pour l'article art
         """
         print(art.piece_obj.poids())
-        return "| {0:40} | {1:10.2f}kg | {2:10.0f} |{3:8.3f}kg|\n".format(art.piece_obj.description(), art.piece_obj.poids(), art.nombre(),
+        return "| {0:40} | {1:10.3f}kg | {2:10.0f} |{3:8.3f}kg|\n".format(art.piece_obj.description(), art.piece_obj.poids(), art.nombre(),
                                                                          art.poids_total())
 
     def print_livraison(self):
@@ -276,9 +276,6 @@ class Piece:
         return self.description() == other.description() and self.prix() == other.prix()
 
 
-ma_piece = Piece("article", 38.8, 10.2, taux_tva_reduite=True)
-
-
 class ArticlePiece(Article):
     def __init__(self, d: str, p: float, piece_number: int, piece_obj):
         super().__init__(d, p)
@@ -312,17 +309,22 @@ class ArticlePiece(Article):
     def poids_total(self):
         return self.nombre() * self.piece_obj.poids()
 
-
-b = Facture("Gaming", [Article("Carte Graphique RTX 3090", 1099.99), Article("Carte Graphique RTX 3090", 1099.99)], 2)
-g = Piece("souris bluetooth", 15.99, 3, False, False)
-h = Piece("Carte Graphique RTX 3090", 1599.99, 2, True, False)
-hh = Piece("disque dur 350 GB", 5,  0.355, True, True)
-hhh = ArticlePiece("disque dur 350 GB", 5, 1, hh)
-g2 = ArticlePiece("souris bluetooth", 15.99, 3, g)
-g3 = ArticlePiece("Carte Graphique RTX 3090", 15.99, 1, h)
-a = Facture("PC store 22 octobre", [g2, g3, hhh], 1)
-#print(a.print_livraison())
-print(g2.super_edit_description('ttt'))
+#string: str, montant: float, kg: float, fragilité=False, taux_tva_reduite=False):
+#d: str, p: float, piece_number: int, piece_obj):
+carte_graphique_piece = Piece("Carte Graphique RTX 3090", 1599.99, 2, True, False)
+disque_dur_piece = Piece("disque dur 350 GB", 5,  0.355, True, True)
+adaptateur_DVI_VGA = Piece("adaptateur DVI - VGA ", 12.0, 0)
+adaptateur_DVI_VGA_article = ArticlePiece("adaptateur DVI - VGA ", 12.0, 5, adaptateur_DVI_VGA)
+Java_in_a_Nutshell = Piece("Java in a Nutshell", 24.00, 0.321)
+Java_in_a_Nutshell_article = ArticlePiece("Java in a Nutshell", 24.0, 2, Java_in_a_Nutshell)
+disque_dur_article_piece = ArticlePiece("disque dur 350 GB", 5, 1, disque_dur_piece)
+souris_bluetooth = Piece("souris bluetooth", 15.99, 0.176, False, False)
+souris_bluetooth_article_piece = ArticlePiece("souris bluetooth", 15.99, 3, souris_bluetooth)
+souris_bluetooth_article_piece2 = ArticlePiece("souris bluetooth", 15.99, 5, souris_bluetooth)
+pc_store = Facture("PC store 22 octobre", [disque_dur_article_piece, souris_bluetooth_article_piece, adaptateur_DVI_VGA_article, Java_in_a_Nutshell_article, souris_bluetooth_article_piece2], 1)
+print(pc_store)
+#g2.super_edit_description('ttt')
+#print(Article.description(g2))
 
 
 
