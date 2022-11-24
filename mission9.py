@@ -65,7 +65,9 @@ class Article:
         """
         return "{0}: {1:.2f} EUR".format(self.description(), self.prix())
 
-
+    def super_edit_description(self, txt):
+        self.__description += txt
+        return self.description()
 ###############
 ### FACTURE ###
 ###############
@@ -285,10 +287,6 @@ class ArticlePiece(Article):
 
     def super_description(self):
         return super().description()
-
-    def super_edit_description(self, txt):
-        self.__description += txt
-
 
     def tva_ou_pas(self):
         return self.piece_obj.tva_reduite()
