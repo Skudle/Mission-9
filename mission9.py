@@ -1,3 +1,4 @@
+import math
 """
 Classes fournies pour la mission 9; à compléter par les étudiants.
 @author Kim Mens
@@ -329,7 +330,7 @@ class Piece:
         return self.__taux_tva_reduite
 
     def __eq__(self, other):
-        return self.description() == other.description() and self.prix() == other.prix():
+        return self.__string == other.__string and math.isclose(self.prix(), other.prix())
 
 
 ####################
