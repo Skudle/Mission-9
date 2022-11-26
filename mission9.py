@@ -330,7 +330,7 @@ class Piece:
         return self.__taux_tva_reduite
 
     def __eq__(self, other):
-        return self.__string == other.__string and math.isclose(self.prix(), other.prix())
+        return self.__string == other.__string and math.isclose(self.__montant, other.__montant)
 
 
 ####################
@@ -342,6 +342,9 @@ class ArticlePiece(Article):
         super().__init__(d, p)
         self.__number = piece_number
         self.piece_obj = piece_obj
+
+    def __eq__(self, other):
+        return super().description() == Article.description(other) and math.isclose(self.prix(), other.prix())
 
 
     def super_description(self):
