@@ -426,3 +426,4 @@ if __name__ == '__main__':
     pc_store = Facture("PC store 22 octobre",[disque_dur_article_piece, souris_bluetooth_article_piece, adaptateur_DVI_VGA_article, Java_in_a_Nutshell_article, souris_bluetooth_article_piece2], 1)
     print(pc_store.print_livraison())
 
+
