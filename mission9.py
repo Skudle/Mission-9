@@ -343,9 +343,6 @@ class ArticlePiece(Article):
         self.__number = piece_number
         self.piece_obj = piece_obj
 
-    def __eq__(self, other):
-        return super().description() == Article.description(other) and math.isclose(self.prix(), other.prix())
-
 
     def super_description(self):
         """
